@@ -1,6 +1,6 @@
 {
   "name": "pix-ai",
-  "version": "1.0.0",
+  "version": "2.3.0",
   "description": "Pix - AI Harness by the creators of Lux and Vokk. Autonomous AI coding companion with 59 agent engines.",
   "main": "src/main/main.js",
   "bin": {
@@ -16,12 +16,12 @@
     "build:linux": "electron-builder --linux",
     "lint": "eslint src/",
     "test": "jest",
-    "sandbox:clean": "node src/modules/sandbox/cleanup.js",
-    "postinstall": "node bin/pix-setup.js"
+    "sandbox:clean": "node src/modules/sandbox/cleanup.js"
   },
   "keywords": ["ai", "coding", "autonomous", "cli", "agent", "copilot", "assistant", "developer-tools"],
   "author": "Pix Team (Creators of Lux & Vokk)",
-  "license": "GPL-3.0",
+  "license": "UNLICENSED",
+  "private": false,
   "preferGlobal": true,
   "dependencies": {
     "electron": "^28.0.0",
