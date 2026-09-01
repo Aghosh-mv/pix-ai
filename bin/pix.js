@@ -31,6 +31,7 @@ const SandboxAgent = require('../src/modules/cli/sandbox');
 const PIIMasking = require('../src/modules/cli/pii-masking');
 const ContentFilter = require('../src/modules/cli/content-filter');
 const PromptTransparency = require('../src/modules/cli/prompt-trace');
+const UncensoredPersonality = require('../src/modules/cli/personality');
 
 // ── Config ──
 const VERSION = '2.5.0';
