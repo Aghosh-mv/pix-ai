@@ -1,19 +1,17 @@
-Proprietary Software License
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
 
-Copyright (c) 2024 Pix Team (Creators of Lux & Vokk)
+ Copyright (C) 2024 Pix Team (Creators of Lux & Vokk)
 
-ALL RIGHTS RESERVED.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This software and associated documentation files (the "Software") are
-proprietary and confidential. No part of this Software may be reproduced,
-distributed, modified, transmitted, reused, republished, or used for any
-commercial purpose without the prior written consent of the copyright owner.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-Unauthorized copying, modification, distribution, or use of this software
-is strictly prohibited.
-
-The Software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-
-For licensing inquiries, contact: Pix Team
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.

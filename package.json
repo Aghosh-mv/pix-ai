@@ -20,8 +20,7 @@
   },
   "keywords": ["ai", "coding", "autonomous", "cli", "agent", "copilot", "assistant", "developer-tools"],
   "author": "Pix Team (Creators of Lux & Vokk)",
-  "license": "UNLICENSED",
-  "private": false,
+  "license": "GPL-3.0",
   "preferGlobal": true,
   "dependencies": {
     "electron": "^28.0.0",
