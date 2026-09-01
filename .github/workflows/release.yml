@@ -1,0 +1,30 @@
+name: Auto Release
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Pix AI v${{ steps.version.outputs.version }}
+          body: |
+            ## Install
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/Aghosh-mv/pix-ai/main/install.sh | bash
+            ```
+            Or with npm:
+            ```bash
+            npm install -g github:Aghosh-mv/pix-ai
+            ```
+          make_latest: true
