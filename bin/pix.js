@@ -101,22 +101,37 @@ function showIntro() {
 
   console.log(T.clear);
   console.log('');
-  console.log(`  ${T.bold}${T.magenta} pix ${T.reset}${T.gray}v${VERSION}${T.reset}`);
-  console.log(`  ${T.gray}${BY}${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}░█████╗░██╗░░░██╗██████╗░${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}██╔══██╗██║░░░██║██╔══██╗${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}██║░░╚═╝██║░░░██║██████╔╝${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}██║░░██╗██║░░░██║██╔═══╝░${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}╚█████╔╝╚██████╔╝██║░░░░░${T.reset}`);
+  console.log(`  ${T.bold}${T.magenta}░╚════╝░░╚═════╝░╚═╝░░░░░${T.reset}`);
   console.log('');
+  console.log(`  ${T.gray}v${VERSION} · ${BY}${T.reset}`);
+  console.log('');
+  console.log(`  ${T.gray}autonomous ai coding companion${T.reset}`);
+  console.log('');
+}
 
-  if (!config.apiKey) {
-    console.log(`  ${T.bold}${T.yellow} set your api key to start:${T.reset}`);
-    console.log(`  ${T.gray}pix key <your-api-key>${T.reset}`);
-    console.log('');
-    console.log(`  ${T.gray}supports openrouter, openai, anthropic, groq, google, deepseek${T.reset}`);
-  } else {
-    console.log(`  ${T.gray}project${T.reset}  ${dir}`);
-    if (branch) console.log(`  ${T.gray}branch${T.reset}  ${branch}`);
-    console.log('');
-    console.log(`  ${T.gray}just type and ask anything${T.reset}`);
-  }
+function askForKey(rl, cb) {
+  console.log(`  ${T.bold}${T.yellow}welcome!${T.reset} let's get you set up.`);
   console.log('');
+  console.log(`  ${T.gray}you'll need an api key from any provider:${T.reset}`);
+  console.log(`  ${T.gray}  openrouter · openai · anthropic · groq · google · deepseek${T.reset}`);
+  console.log('');
+  rl.question(`  ${T.bold}api key${T.reset} `, (key) => {
+    const k = key.trim();
+    if (k) {
+      config.apiKey = k;
+      saveConfig(config);
+      console.log('');
+      console.log(`  ${T.green}✓${T.reset} key saved`);
+      console.log(`  ${T.gray}you're all set. just type and ask anything.${T.reset}`);
+      console.log('');
+    }
+    cb();
+  });
 }
 
 // ══════════════════════════════════════════════
@@ -242,13 +257,12 @@ function handleCommand(raw) {
         '',
         `  ${T.bold}${T.magenta}pix${T.reset} ${T.gray}v${VERSION}${T.reset}`,
         '',
-        `  ${T.bold}key${T.reset}  <api-key>    set your api key`,
-        `  ${T.bold}help${T.reset}              show this`,
-        `  ${T.bold}status${T.reset}            system info`,
-        `  ${T.bold}clear${T.reset}            clear screen`,
-        `  ${T.bold}exit${T.reset}             quit`,
+        `  ${T.gray}just type to chat. commands:${T.reset}`,
         '',
-        `  ${T.gray}that's it. just type to chat.${T.reset}`,
+        `    ${T.bold}key${T.reset}  <api-key>    set/change api key`,
+        `    ${T.bold}status${T.reset}             system info`,
+        `    ${T.bold}clear${T.reset}             clear screen`,
+        `    ${T.bold}exit${T.reset}              quit`,
         ''
       ]);
       break;
@@ -309,18 +323,7 @@ function prompt() {
 }
 
 if (!config.apiKey) {
-  rl.question(`  ${T.bold}paste your api key:${T.reset} `, (key) => {
-    const k = key.trim();
-    if (k) {
-      config.apiKey = k;
-      saveConfig(config);
-      console.log('');
-      console.log(`  ${T.green}✓${T.reset} key saved`);
-      console.log(`  ${T.gray}just type and ask anything${T.reset}`);
-      console.log('');
-    }
-    prompt();
-  });
+  askForKey(rl, () => prompt());
 } else {
   prompt();
 }
