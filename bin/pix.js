@@ -308,5 +308,22 @@ function prompt() {
   });
 }
 
+if (!config.apiKey) {
+  rl.question(`  ${T.bold}paste your api key:${T.reset} `, (key) => {
+    const k = key.trim();
+    if (k) {
+      config.apiKey = k;
+      saveConfig(config);
+      console.log('');
+      console.log(`  ${T.green}✓${T.reset} key saved`);
+      console.log(`  ${T.gray}just type and ask anything${T.reset}`);
+      console.log('');
+    }
+    prompt();
+  });
+} else {
+  prompt();
+}
+
 rl.on('close', () => process.exit(0));
 prompt();
