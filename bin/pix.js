@@ -107,9 +107,9 @@ function showIntro() {
 
   if (!config.apiKey) {
     console.log(`  ${T.bold}${T.yellow} set your api key to start:${T.reset}`);
-    console.log(`  ${T.gray}pix key <your-openrouter-api-key>${T.reset}`);
+    console.log(`  ${T.gray}pix key <your-api-key>${T.reset}`);
     console.log('');
-    console.log(`  ${T.gray}get one free at openrouter.ai/keys${T.reset}`);
+    console.log(`  ${T.gray}supports openrouter, openai, anthropic, groq, google, deepseek${T.reset}`);
   } else {
     console.log(`  ${T.gray}project${T.reset}  ${dir}`);
     if (branch) console.log(`  ${T.gray}branch${T.reset}  ${branch}`);
@@ -242,7 +242,7 @@ function handleCommand(raw) {
         '',
         `  ${T.bold}${T.magenta}pix${T.reset} ${T.gray}v${VERSION}${T.reset}`,
         '',
-        `  ${T.bold}key${T.reset}  <api-key>    set your openrouter api key`,
+        `  ${T.bold}key${T.reset}  <api-key>    set your api key`,
         `  ${T.bold}help${T.reset}              show this`,
         `  ${T.bold}status${T.reset}            system info`,
         `  ${T.bold}clear${T.reset}            clear screen`,
@@ -261,7 +261,7 @@ function handleCommand(raw) {
       [
         ['api key', config.apiKey ? '***'+config.apiKey.slice(-4) : `${T.yellow}not set${T.reset}`],
         ['provider', config.provider],
-        ['model', config.models?.length ? config.models.join(' → ') : 'auto (MoE)'],
+        ['model', config.models?.length ? config.models.join(' → ') : 'auto'],
         ['node', process.version],
         ['platform', `${os.platform()} ${os.arch()}`],
         ['session msgs', `${sessionMessages.length}`],
