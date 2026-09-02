@@ -45,7 +45,16 @@ function loadConfig() {
   }
 }
 function saveConfig(c) { fs.writeFileSync(CONFIG_FILE, JSON.stringify(c, null, 2)); }
-function git(cmd) { try { return execSync(cmd, { encoding: 'utf8', cwd: process.cwd(), stdio: ['pipe', 'pipe', 'pipe'] }).trim(); } catch (e) { return ''; } }
+function git(cmd) {
+  try {
+    const result = require('child_process').execSync(cmd, {
+      encoding: 'utf8',
+      cwd: process.cwd(),
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    return result.trim();
+  } catch (e) { return ''; }
+}
 
 ensureDirs();
 const config = loadConfig();
@@ -96,9 +105,6 @@ function divider() { print(`${T.gray}${'─'.repeat(50)}${T.reset}`); }
 // ══════════════════════════════════════════════
 
 function showIntro() {
-  const branch = git('git branch --show-current');
-  const dir = path.basename(process.cwd());
-
   console.log(T.clear);
   console.log('');
   console.log(`  ${T.bold}${T.magenta}░█████╗░██╗░░░██╗██████╗░${T.reset}`);
@@ -114,7 +120,7 @@ function showIntro() {
   console.log('');
 }
 
-function askForKey(rl, cb) {
+function promptForKey(rl, cb) {
   console.log(`  ${T.bold}${T.yellow}welcome!${T.reset} let's get you set up.`);
   console.log('');
   console.log(`  ${T.gray}you'll need an api key from any provider:${T.reset}`);
@@ -311,7 +317,7 @@ function handleCommand(raw) {
 
 showIntro();
 
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: getPrompt() });
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
 function prompt() {
   rl.question(getPrompt() + ' ', (answer) => {
@@ -323,7 +329,7 @@ function prompt() {
 }
 
 if (!config.apiKey) {
-  askForKey(rl, () => prompt());
+  promptForKey(rl, () => prompt());
 } else {
   prompt();
 }
