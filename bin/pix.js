@@ -78,41 +78,61 @@ let sessionMessages = [];
 let contextTrack = { filesOpened: [], filesModified: [], commandsRun: [], decisions: [], notes: [], fileSnapshots: {} };
 
 // ══════════════════════════════════════════════
-// TUI
+// TUI — Clean OpenCode-style layout
 // ══════════════════════════════════════════════
 
-const screen = blessed.screen({ smartCSR: true, title: 'pix', dockBorders: true, fullUnicode: true });
+const screen = blessed.screen({ smartCSR: true, title: 'pix', dockBorders: true, fullUnicode: true, fastCSR: true });
 
+// ── Status bar (bottom) — clean single line ──
 const statusBar = blessed.box({
   parent: screen, bottom: 0, left: 0, right: 0, height: 1,
-  tags: true, style: { fg: '#18181b', bg: '#a1a1aa' },
-  content: ` {bold}pix{/bold} {gray-fg}v${VERSION}{/gray-fg} │ {white-fg}${config.provider}{/white-fg} │ ${git('git branch --show-current') || 'detached'} │ ${path.basename(process.cwd())} `
+  tags: true,
+  style: { fg: '#a1a1aa', bg: '#18181b' },
+  content: ''
 });
 
+// ── Output area (main scroll) ──
 const outputBox = blessed.box({
   parent: screen, top: 0, left: 0, right: 0, bottom: 2,
   tags: true, scrollable: true, alwaysScroll: true,
   scrollbar: { style: { bg: '#3f3f46' } },
   style: { fg: '#d4d4d8', bg: '#09090b' },
-  padding: { left: 1, right: 1 }
+  padding: { left: 1, right: 1, top: 0, bottom: 0 }
 });
 
+// ── Input area (bottom, above status) ──
 const inputBox = blessed.box({
-  parent: screen, bottom: 1, left: 0, right: 0, height: 3,
-  tags: true, style: { fg: '#d4d4d8', bg: '#18181b', border: { fg: '#27272a' } },
-  border: { type: 'line' }, padding: { left: 1 }
+  parent: screen, bottom: 1, left: 0, right: 0, height: 1,
+  tags: true,
+  style: { fg: '#d4d4d8', bg: '#0f0f11', border: { fg: '#27272a' } },
+  border: { type: 'line' },
+  padding: { left: 0 }
 });
 
-blessed.text({ parent: inputBox, left: 0, top: 0, width: '100%', height: 1, tags: true, content: '{#22c55e-fg}{bold}❯{/bold}{/bold}{/} ' });
+const promptText = blessed.text({
+  parent: inputBox, left: 1, top: 0, width: 3, height: 1,
+  tags: true, content: '{#22c55e-fg}{bold}❯{/bold}{/} '
+});
 
 const input = blessed.textarea({
-  parent: inputBox, left: 3, top: 0, right: 0, height: 1,
-  inputOnFocus: true, style: { fg: '#fafafa', bg: '#18181b', focus: { bg: '#18181b' } },
+  parent: inputBox, left: 3, top: 0, right: 1, height: 1,
+  inputOnFocus: true,
+  style: { fg: '#fafafa', bg: '#0f0f11', focus: { bg: '#0f0f11' } },
   keys: true, vi: true
 });
 
 const history = [];
 let historyIdx = -1;
+
+// ── Update status bar ──
+function updateStatusBar(model) {
+  const branch = git('git branch --show-current') || '-';
+  const dir = path.basename(process.cwd());
+  const msgs = sessionMessages.length;
+  const prov = model || config.provider;
+  statusBar.setContent(` {bold}{#818cf8-fg}pix{/bold}{/} {gray-fg}v${VERSION}{/gray-fg} {gray-fg}│{/} {white-fg}${prov}{/white-fg} {gray-fg}│{/} ${branch} {gray-fg}│{/} ${dir} {gray-fg}│{/} {#22c55e-fg}${msgs} msgs{/} `);
+  screen.render();
+}
 
 // ── Output helpers ──
 function print(line) {
@@ -123,14 +143,7 @@ function print(line) {
 }
 function printLines(lines) { lines.forEach(print); }
 function divider() { print(`{#27272a-fg}${'─'.repeat(screen.width - 4)}{/}`); }
-
-function updateStatusBar(model) {
-  const chain = multiModel.getChain('');
-  const snapCount = snapshot.list().length;
-  const memStats = memory.stats();
-  statusBar.setContent(` {bold}pix{/bold} {gray-fg}v${VERSION}{/gray-fg} │ {white-fg}${model || config.provider}{/white-fg} │ ${git('git branch --show-current') || 'detached'} │ ${path.basename(process.cwd())} │ {#22c55e-fg}msg:${sessionMessages.length}{/} │ ${snapCount > 0 ? `{#818cf8-fg}snap:${snapCount}{/}` : ''} `);
-  screen.render();
-}
+function clearOutput() { outputBox.setContent(''); screen.render(); }
 
 function newSession() {
   const id = crypto.randomBytes(4).toString('hex');
@@ -252,55 +265,42 @@ function handleCommand(raw) {
   switch (cmd) {
     case 'help':
       printLines([
-        '', `  {bold}{#818cf8-fg}pix{/} {gray-fg}v${VERSION}{/} {gray-fg}${BY}{/}`, '',
-        `  {gray-fg}───────────────────────────────────────{/}`, '',
-        `  {bold}chat{/}                  Interactive session`,
-        `  {bold}ask{/}  <question>       Ask a question`,
-        `  {bold}review{/} <file>         Review a file`,
-        `  {bold}git{/}  <sub>            Git autopilot`,
-        `  {bold}compact{/}              Manual compaction`,
-        `  {bold}restore{/} <id>          Restore compaction`,
-        `  {bold}compactions{/}           List compactions`,
-        `  {bold}search{/} <query>        Search compactions`,
-        `  {bold}models{/}               Provider & chain`,
-        `  {bold}models{/} set <chain>    Set model chain`,
-        `  {bold}models{/} moe on         MoE auto-routing`,
-        `  {bold}save{/} <name> <code>   Save to PixSave`,
-        `  {bold}load{/} <package>       Install from PixSave`,
-        `  {bold}registry{/}             List packages`,
-        `  {bold}creds{/} add <email> <pass>  Save credentials`,
-        `  {bold}creds{/} list            List saved creds`,
-        `  {bold}tools{/}                Available tools`,
-        `  {bold}suggest{/} <problem>    Tool suggestions`,
-        `  {bold}remember{/} <key> <val> Save to memory`,
-        `  {bold}recall{/} <query>       Recall from memory`,
-        `  {bold}memory{/}               Memory stats`,
-        `  {bold}snapshot{/}             Pre-rewrite backup`,
-        `  {bold}restore-snap{/} <id>    Restore snapshot`,
-        `  {bold}snapshots{/}            List snapshots`,
-        `  {bold}sandbox{/} <task>       Run in sandbox`,
-        `  {bold}sandbox{/} list         List sandboxes`,
-        `  {bold}plugins{/}              Plugin marketplace`,
-        `  {bold}plugins{/} install <id> Install plugin`,
-        `  {bold}collab{/} start         Start collaboration`,
-        `  {bold}voice{/} on|off         Toggle voice`,
-        `  {bold}prompt{/} on|off        Prompt transparency`,
-        `  {bold}scan{/} <text>          Scan for PII`,
-        `  {bold}filter{/}               Content filter info`,
-        `  {bold}plugins{/}              Plugin marketplace`,
-        `  {bold}sessions{/}            Session history`,
-        `  {bold}cost{/}                Cost tracker`,
-        `  {bold}config{/}              Configure`,
-        `  {bold}status{/}              System info`,
-        `  {bold}doctor{/}              Diagnostics`,
-        `  {bold}init{/}                Initialize project`,
-        `  {bold}version{/}             Version`,
-        `  {bold}clear{/}               Clear screen`,
-        `  {bold}exit{/}                Quit`, ''
+        '',
+        `  {bold}{#818cf8-fg}pix{/bold}{/} {gray-fg}v${VERSION}{/gray-fg}`,
+        '',
+        `  {gray-fg}Usage:{/}`,
+        '',
+        `    {bold}ask{/}  <question>       Ask a question`,
+        `    {bold}review{/} <file>         Review a file`,
+        `    {bold}git{/}  <sub>            Git autopilot`,
+        `    {bold}models{/}               Provider & chain`,
+        `    {bold}compact{/}              Manual compaction`,
+        `    {bold}restore{/} <id>          Restore compaction`,
+        `    {bold}save{/} <name> <code>   Save to PixSave`,
+        `    {bold}load{/} <package>       Install from PixSave`,
+        `    {bold}creds{/} add <e> <p>    Save credentials`,
+        `    {bold}tools{/}                Available tools`,
+        `    {bold}suggest{/} <problem>    Tool suggestions`,
+        `    {bold}remember{/} <k> <v>     Save to memory`,
+        `    {bold}recall{/} <query>       Recall from memory`,
+        `    {bold}snapshot{/}             Pre-rewrite backup`,
+        `    {bold}sandbox{/} <task>       Run in sandbox`,
+        `    {bold}plugins{/}              Plugin marketplace`,
+        `    {bold}voice{/} on|off         Toggle voice`,
+        `    {bold}prompt{/} on|off        Prompt transparency`,
+        `    {bold}scan{/} <text>          Scan for PII`,
+        `    {bold}filter{/}               Content filter info`,
+        `    {bold}config{/}              Configure`,
+        `    {bold}status{/}              System info`,
+        `    {bold}doctor{/}              Diagnostics`,
+        `    {bold}version{/}             Version`,
+        `    {bold}clear{/}               Clear screen`,
+        `    {bold}exit{/}                Quit`,
+        ''
       ]);
       break;
 
-    case 'clear': outputBox.setContent(''); screen.render(); break;
+    case 'clear': clearOutput(); break;
     case 'version': print(`  pix v${VERSION} ${BY}`); break;
 
     case 'doctor':
@@ -791,10 +791,9 @@ screen.key(['tab'], () => { input.focus(); screen.render(); });
 
 printLines([
   '',
-  `  {bold}{#818cf8-fg}pix{/} {gray-fg}v${VERSION}{/}`,
-  `  {gray-fg}${BY}{/}`,
+  `  {bold}{#818cf8-fg}pix{/bold}{/} {gray-fg}v${VERSION}{/gray-fg}`,
   '',
-  `  {gray-fg}19 modules · MoE routing · PII masking · sandbox · split screen{/}`,
+  `  {gray-fg}type a command or ask anything{/}`,
   `  {gray-fg}try: {/}{bold}help{/}{gray-fg}, {/}{bold}status{/}{gray-fg}, {/}{bold}models{/}{gray-fg}, {/}{bold}review <file>{/}`,
   ''
 ]);
