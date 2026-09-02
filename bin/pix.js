@@ -45,7 +45,7 @@ function loadConfig() {
   }
 }
 function saveConfig(c) { fs.writeFileSync(CONFIG_FILE, JSON.stringify(c, null, 2)); }
-function git(cmd) { try { return execSync(cmd, { encoding: 'utf8', cwd: process.cwd() }).trim(); } catch (e) { return ''; } }
+function git(cmd) { try { return execSync(cmd, { encoding: 'utf8', cwd: process.cwd(), stdio: ['pipe', 'pipe', 'pipe'] }).trim(); } catch (e) { return ''; } }
 
 ensureDirs();
 const config = loadConfig();
@@ -307,7 +307,12 @@ function handleCommand(raw) {
       break;
 
     case 'config':
-      if (arg.startsWith('--set-key ')) { config.apiKey = arg.replace('--set-key ', ''); saveConfig(config); print(`${T.green}✓${T.reset} api key saved`); }
+      if (arg.startsWith('--set-key ')) {
+        const key = arg.replace('--set-key ', '').trim();
+        config.apiKey = key;
+        saveConfig(config);
+        print(`${T.green}✓${T.reset} api key saved (${key.length} chars, ends with ...${key.slice(-4)})`);
+      }
       else if (arg.startsWith('--set-provider ')) { config.provider = arg.replace('--set-provider ', ''); saveConfig(config); contentFilter.setModel(config.provider); print(`${T.green}✓${T.reset} provider: ${config.provider}`); }
       else if (arg === '--auto-search on') { config.autoSearch = true; saveConfig(config); print(`${T.green}✓${T.reset} auto-search on`); }
       else if (arg === '--auto-search off') { config.autoSearch = false; saveConfig(config); print(`${T.green}✓${T.reset} auto-search off`); }
@@ -323,7 +328,7 @@ function handleCommand(raw) {
         print(`  ${T.gray}uncensored${T.reset}       ${config.uncensored ? 'on' : 'off'}`);
         print(`  ${T.gray}compact-threshold${T.reset} ${config.autoCompactThreshold || 50} msgs`);
         print('');
-        print(`  ${T.gray}pix config --set-key <key>${T.reset}`);
+        print(`  ${T.gray}pix config --set-key <your-api-key>${T.reset}`);
         print(`  ${T.gray}pix config --set-provider <provider>${T.reset}`);
         print(`  ${T.gray}pix config --uncensored on|off${T.reset}`);
       }
