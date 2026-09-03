@@ -186,23 +186,29 @@ function askAI(raw, cb) {
 
   print(`${T.gray}→ ${route.provider} (${route.tier})${T.reset}`);
 
+  let alive = true;
+  const keepAlive = setInterval(() => {}, 10000);
+
   multiModel.askChain(messages, (reply, err, usedProvider) => {
-    if (reply) {
-      reply.split('\n').forEach(l => print(l));
-      print('');
-      if (!currentSessionId) newSession();
-      saveMsg(currentSessionId, 'user', raw);
-      saveMsg(currentSessionId, 'assistant', reply);
-      memory.remember(raw.substring(0, 100), reply.substring(0, 200), { category: 'conversation', project: process.cwd() });
+    clearInterval(keepAlive);
+    if (alive) {
+      if (reply) {
+        reply.split('\n').forEach(l => print(l));
+        print('');
+        if (!currentSessionId) newSession();
+        saveMsg(currentSessionId, 'user', raw);
+        saveMsg(currentSessionId, 'assistant', reply);
+        memory.remember(raw.substring(0, 100), reply.substring(0, 200), { category: 'conversation', project: process.cwd() });
 
-      const broJoke = personality.getBroJoke();
-      if (broJoke) print(`${T.gray}${broJoke}${T.reset}\n`);
+        const broJoke = personality.getBroJoke();
+        if (broJoke) print(`${T.gray}${broJoke}${T.reset}\n`);
 
-      autoCompact();
-    } else {
-      print(`${T.red}✗ ${err || 'no response'}${T.reset}\n`);
+        autoCompact();
+      } else {
+        print(`${T.red}✗ ${err || 'no response'}${T.reset}\n`);
+      }
+      cb();
     }
-    cb();
   });
 }
 

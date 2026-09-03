@@ -7,7 +7,7 @@ const https = require('https');
 
 const PROVIDERS = {
   openrouter: { host: 'openrouter.ai', path: '/api/v1/chat/completions', model: 'gpt-4o-mini' },
-  groq:       { host: 'api.groq.com',  path: '/v1/chat/completions',    model: 'llama3-8b-8192' },
+  groq:       { host: 'api.groq.com',  path: '/openai/v1/chat/completions',    model: 'llama3-8b-8192' },
   openai:     { host: 'api.openai.com', path: '/v1/chat/completions',    model: 'gpt-4o-mini' },
   gemini:     { host: 'generativelanguage.googleapis.com', path: '/v1beta/models/gemini-2.0-flash:generateContent', model: 'gemini-2.0-flash' },
   anthropic:  { host: 'api.anthropic.com', path: '/v1/messages',         model: 'claude-3-haiku-20240307' },
