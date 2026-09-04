@@ -12,13 +12,14 @@ const PROVIDERS = {
   gemini:     { host: 'generativelanguage.googleapis.com', path: '/v1beta/models/gemini-2.0-flash:generateContent', model: 'gemini-2.0-flash' },
   anthropic:  { host: 'api.anthropic.com', path: '/v1/messages',         model: 'claude-3-haiku-20240307' },
   mistral:    { host: 'api.mistral.ai', path: '/v1/chat/completions',    model: 'mistral-tiny' },
+  glm:        { host: 'open.bigmodel.cn', path: '/api/paas/v4/chat/completions', model: 'glm-4-flash' },
 };
 
 const MOE_ROUTES = {
-  code:    ['openrouter', 'groq', 'openai'],
+  code:    ['groq', 'openrouter', 'glm'],
   reason:  ['anthropic', 'openai', 'gemini'],
-  speed:   ['groq', 'openrouter', 'mistral'],
-  general: ['openrouter', 'gemini', 'groq'],
+  speed:   ['groq', 'glm', 'openrouter'],
+  general: ['glm', 'groq', 'openrouter'],
 };
 
 function detectTaskType(q) {
